@@ -1,234 +1,176 @@
-'use client';
+import { useState, ChangeEvent, FormEvent } from "react";
+import * as XLSX from "xlsx";
 
-import { useState } from 'react';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
-
-// Define the form data type
 interface FormData {
   name: string;
-  age: number;
-  fatherName: string;
-  address: string;
-  bloodGroup: string;
-  education: string;
+  email: string;
+  phone: string;
+  age: string;
+  comments: string;
 }
 
-// PDF Card Styles
-const styles = StyleSheet.create({
-  page: {
-    flexDirection: 'column',
-    backgroundColor: '#ffffff',
-    padding: 30,
-    width: 300,
-    height: 200,
-    border: '2px solid #10b981',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#10b981',
-    marginBottom: 10,
-  },
-  detail: {
-    fontSize: 10,
-    marginBottom: 5,
-    color: '#333',
-  },
-  memberId: {
-    fontSize: 12,
-    color: '#f59e0b',
-    marginTop: 10,
-  },
-});
+interface ExcelRow {
+  Name: string;
+  Email: string;
+  Phone: string;
+  Age: string;
+  Comments: string;
+}
 
-// PDF Card Component
-const MembershipCard = ({ data }: { data: FormData }) => (
-  <Document>
-    <Page size="A6" style={styles.page}>
-      <View>
-        <Text style={styles.title}>Pulari Arts and Sports</Text>
-        <Text style={styles.title}>Membership Card</Text>
-        <Text style={styles.detail}>Name: {data.name}</Text>
-        <Text style={styles.detail}>Age: {data.age}</Text>
-        <Text style={styles.detail}>Father Name: {data.fatherName}</Text>
-        <Text style={styles.detail}>Address: {data.address}</Text>
-        <Text style={styles.detail}>Blood Group: {data.bloodGroup}</Text>
-        <Text style={styles.detail}>Education: {data.education}</Text>
-        <Text style={styles.memberId}>ID: {Date.now()} (Virtual)</Text>
-      </View>
-    </Page>
-  </Document>
-);
-
-export default function Home() {
+export default function App() {
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    age: 0,
-    fatherName: '',
-    address: '',
-    bloodGroup: '',
-    education: '',
+    name: "",
+    email: "",
+    phone: "",
+    age: "",
+    comments: "",
   });
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const [data, setData] = useState<ExcelRow[]>([]);
+
+  // Handle input changes
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: name === 'age' ? parseInt(value) || 0 : value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const validate = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!formData.name) newErrors.name = 'Name is required';
-    if (formData.age <= 0) newErrors.age = 'Age must be positive';
-    if (!formData.fatherName) newErrors.fatherName = "Father name is required";
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.bloodGroup) newErrors.bloodGroup = 'Blood group is required';
-    if (!formData.education) newErrors.education = 'Education is required';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (validate()) {
-      console.log('Form Data Submitted:', formData); // Mock storage – logs to console for testing
-      setSubmitted(true);
+
+    const newEntry: ExcelRow = {
+      Name: formData.name,
+      Email: formData.email,
+      Phone: formData.phone,
+      Age: formData.age,
+      Comments: formData.comments,
+    };
+
+    setData((prev) => [...prev, newEntry]);
+
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      age: "",
+      comments: "",
+    });
+
+    alert('Data added successfully! Click "Download Excel" to save.');
+  };
+
+  // Download Excel file
+  const downloadExcel = () => {
+    if (data.length === 0) {
+      alert("No data to download!");
+      return;
     }
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Form Data");
+
+    XLSX.writeFile(wb, "form_data.xlsx");
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-auto">
-        <h1 className="text-3xl font-bold text-center text-green-600 mb-6">Pulari Arts and Sports</h1>
-        <p className="text-center text-gray-600 mb-6">Join our club! Fill the form below.</p>
-        
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Age *</label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
-              {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Father&apos;s Name *</label>
-              <input
-                type="text"
-                name="fatherName"
-                value={formData.fatherName}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
-              {errors.fatherName && <p className="text-red-500 text-xs mt-1">{errors.fatherName}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
-              {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Blood Group *</label>
-              <select
-                name="bloodGroup"
-                value={formData.bloodGroup}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              >
-                <option value="">Select...</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
-              {errors.bloodGroup && <p className="text-red-500 text-xs mt-1">{errors.bloodGroup}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Education *</label>
-              <input
-                type="text"
-                name="education"
-                value={formData.education}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                placeholder="e.g., Graduate"
-                required
-              />
-              {errors.education && <p className="text-red-500 text-xs mt-1">{errors.education}</p>}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
-            >
-              Submit (Mock – No Payment Yet)
-            </button>
-          </form>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">Welcome, {formData.name}!</h2>
-            <p className="text-gray-600 mb-4">Your membership data has been recorded (check console).</p>
-            <div className="bg-gray-100 p-4 rounded-md mb-4">
-              <PDFDownloadLink document={<MembershipCard data={formData} />} fileName={`pulari-membership-${formData.name}.pdf`}>
-                {({ loading }) => (
-                  <button className="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition duration-200">
-                    {loading ? 'Generating...' : 'Download Virtual Card'}
-                  </button>
-                )}
-              </PDFDownloadLink>
-            </div>
-            <button
-              onClick={() => {
-                setSubmitted(false);
-                setFormData({ name: '', age: 0, fatherName: '', address: '', bloodGroup: '', education: '' });
-              }}
-              className="text-blue-500 underline"
-            >
-              Fill Another Form
-            </button>
+    <div style={styles.body}>
+      <div style={styles.formContainer}>
+        <h2>Submit Your Information</h2>
+        <form onSubmit={handleSubmit}>
+          <div style={styles.formGroup}>
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
           </div>
-        )}
+          <div style={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="phone">Phone</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="age">Age</label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              min="0"
+              value={formData.age}
+              onChange={handleChange}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="comments">Comments</label>
+            <textarea
+              id="comments"
+              name="comments"
+              rows={4}
+              value={formData.comments}
+              onChange={handleChange}
+            />
+          </div>
+          <button type="submit" style={styles.button}>
+            Add to Excel
+          </button>
+        </form>
+        <button onClick={downloadExcel} style={{ ...styles.button, marginTop: 10 }}>
+          Download Excel
+        </button>
       </div>
-    </main>
+    </div>
   );
 }
+
+// Inline styles (you can move this to a CSS file if needed)
+const styles: { [key: string]: React.CSSProperties } = {
+  body: {
+    fontFamily: "Arial, sans-serif",
+    maxWidth: "600px",
+    margin: "20px auto",
+    padding: "20px",
+    backgroundColor: "#f4f4f4",
+  },
+  formContainer: {
+    backgroundColor: "white",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+  },
+  formGroup: {
+    marginBottom: "15px",
+  },
+  button: {
+    backgroundColor: "#28a745",
+    color: "white",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "16px",
+  },
+};
