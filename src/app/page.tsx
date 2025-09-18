@@ -14,7 +14,7 @@ interface FormData {
 }
 
 // Replace with your Google Apps Script Web App URL after deploying the script below
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // TODO: Replace with your actual URL
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw1G7TS2OPVcPon38Qd2SSDbHNGszXG-121O0e3bE_Jy_Hr0r7s0RBodkOBmIwiQqvkqw/exec'; // TODO: Replace with your actual URL
 
 // Google Apps Script Code (Copy this into a new Google Apps Script project and deploy as Web App):
 /*
