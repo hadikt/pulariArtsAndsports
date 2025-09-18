@@ -137,39 +137,48 @@ export default function Home() {
   };
 
   const saveToGoogleSheets = async (data: FormData) => {
-    try {
-      await fetch(GOOGLE_SHEETS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      console.log('Data saved to Google Sheets');
-      return true;
-    } catch (error: any) {
+  try {
+    await fetch(GOOGLE_SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    console.log('Data saved to Google Sheets');
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
       console.error('Error saving to Google Sheets:', error.message);
       throw new Error(`Failed to save to Google Sheets: ${error.message}`);
     }
-  };
+    throw new Error('Unknown error occurred while saving to Google Sheets');
+  }
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError('');
-    if (validate()) {
-      setLoading(true);
-      try {
-        await saveToGoogleSheets(formData);
-        console.log('Form Data Submitted:', formData);
-        setSubmitted(true);
-      } catch (error: any) {
-        setSubmitError(error.message || 'Failed to save data. Please try again.');
-      } finally {
-        setLoading(false);
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitError('');
+  if (validate()) {
+    setLoading(true);
+    try {
+      await saveToGoogleSheets(formData);
+      console.log('Form Data Submitted:', formData);
+      setSubmitted(true);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setSubmitError(error.message);
+      } else {
+        setSubmitError('Failed to save data. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-br from-green-50 to-blue-50">
