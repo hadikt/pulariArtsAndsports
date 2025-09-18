@@ -1,103 +1,234 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+
+// Define the form data type
+interface FormData {
+  name: string;
+  age: number;
+  fatherName: string;
+  address: string;
+  bloodGroup: string;
+  education: string;
+}
+
+// PDF Card Styles
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    padding: 30,
+    width: 300,
+    height: 200,
+    border: '2px solid #10b981',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#10b981',
+    marginBottom: 10,
+  },
+  detail: {
+    fontSize: 10,
+    marginBottom: 5,
+    color: '#333',
+  },
+  memberId: {
+    fontSize: 12,
+    color: '#f59e0b',
+    marginTop: 10,
+  },
+});
+
+// PDF Card Component
+const MembershipCard = ({ data }: { data: FormData }) => (
+  <Document>
+    <Page size="A6" style={styles.page}>
+      <View>
+        <Text style={styles.title}>Pulari Arts and Sports</Text>
+        <Text style={styles.title}>Membership Card</Text>
+        <Text style={styles.detail}>Name: {data.name}</Text>
+        <Text style={styles.detail}>Age: {data.age}</Text>
+        <Text style={styles.detail}>Father's Name: {data.fatherName}</Text>
+        <Text style={styles.detail}>Address: {data.address}</Text>
+        <Text style={styles.detail}>Blood Group: {data.bloodGroup}</Text>
+        <Text style={styles.detail}>Education: {data.education}</Text>
+        <Text style={styles.memberId}>ID: {Date.now()} (Virtual)</Text>
+      </View>
+    </Page>
+  </Document>
+);
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    age: 0,
+    fatherName: '',
+    address: '',
+    bloodGroup: '',
+    education: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: name === 'age' ? parseInt(value) || 0 : value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.name) newErrors.name = 'Name is required';
+    if (formData.age <= 0) newErrors.age = 'Age must be positive';
+    if (!formData.fatherName) newErrors.fatherName = "Father's name is required";
+    if (!formData.address) newErrors.address = 'Address is required';
+    if (!formData.bloodGroup) newErrors.bloodGroup = 'Blood group is required';
+    if (!formData.education) newErrors.education = 'Education is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validate()) {
+      console.log('Form Data Submitted:', formData); // Mock storage – logs to console for testing
+      setSubmitted(true);
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-auto">
+        <h1 className="text-3xl font-bold text-center text-green-600 mb-6">Pulari Arts and Sports</h1>
+        <p className="text-center text-gray-600 mb-6">Join our club! Fill the form below.</p>
+        
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Age *</label>
+              <input
+                type="number"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+              {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Father&apos;s Name *</label>
+              <input
+                type="text"
+                name="fatherName"
+                value={formData.fatherName}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+              {errors.fatherName && <p className="text-red-500 text-xs mt-1">{errors.fatherName}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              />
+              {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Blood Group *</label>
+              <select
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                required
+              >
+                <option value="">Select...</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+              {errors.bloodGroup && <p className="text-red-500 text-xs mt-1">{errors.bloodGroup}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Education *</label>
+              <input
+                type="text"
+                name="education"
+                value={formData.education}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                placeholder="e.g., Graduate"
+                required
+              />
+              {errors.education && <p className="text-red-500 text-xs mt-1">{errors.education}</p>}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
+            >
+              Submit (Mock – No Payment Yet)
+            </button>
+          </form>
+        ) : (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-green-600 mb-4">Welcome, {formData.name}!</h2>
+            <p className="text-gray-600 mb-4">Your membership data has been recorded (check console).</p>
+            <div className="bg-gray-100 p-4 rounded-md mb-4">
+              <PDFDownloadLink document={<MembershipCard data={formData} />} fileName={`pulari-membership-${formData.name}.pdf`}>
+                {({ loading }) => (
+                  <button className="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition duration-200">
+                    {loading ? 'Generating...' : 'Download Virtual Card'}
+                  </button>
+                )}
+              </PDFDownloadLink>
+            </div>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({ name: '', age: 0, fatherName: '', address: '', bloodGroup: '', education: '' });
+              }}
+              className="text-blue-500 underline"
+            >
+              Fill Another Form
+            </button>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
