@@ -14,13 +14,13 @@ interface FormData {
 }
 
 // Replace with your Google Apps Script Web App URL after deploying the script below
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw1G7TS2OPVcPon38Qd2SSDbHNGszXG-121O0e3bE_Jy_Hr0r7s0RBodkOBmIwiQqvkqw/exec'; // TODO: Replace with your actual URL
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // TODO: Replace with your actual URL
 
 // Google Apps Script Code (Copy this into a new Google Apps Script project and deploy as Web App):
 /*
 function doPost(e) {
   try {
-    const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getActiveSheet(); // TODO: Replace with your Sheet ID
+    const sheet = SpreadsheetApp.openById('1RO8kGJ6sO-T0rwnbBmWCiX9atH-44zxXtHow2oXhVag').getActiveSheet();
     const data = JSON.parse(e.postData.contents);
     sheet.appendRow([
       new Date(),
@@ -39,11 +39,10 @@ function doPost(e) {
 */
 // Deploy instructions: 
 // 1. Go to script.google.com, create new project, paste the code.
-// 2. Replace 'YOUR_SHEET_ID' with your Google Sheet's ID (from URL).
-// 3. Save, then Deploy > New Deployment > Type: Web app > Execute as: Me > Who has access: Anyone.
-// 4. Copy the Web app URL and replace GOOGLE_SHEETS_URL above.
+// 2. Save, then Deploy > New Deployment > Type: Web app > Execute as: Me > Who has access: Anyone.
+// 3. Copy the Web app URL and replace GOOGLE_SHEETS_URL above.
 
-// PDF Card Styles (Improved with better spacing and colors)
+// PDF Card Styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
@@ -83,7 +82,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// PDF Card Component (Slightly improved layout)
+// PDF Card Component
 const MembershipCard = ({ data }: { data: FormData }) => (
   <Document>
     <Page size="A6" style={styles.page}>
@@ -92,7 +91,7 @@ const MembershipCard = ({ data }: { data: FormData }) => (
         <Text style={styles.subtitle}>Membership Card</Text>
         <Text style={styles.detail}>Name: {data.name}</Text>
         <Text style={styles.detail}>Age: {data.age}</Text>
-        <Text style={styles.detail}>Father's Name: {data.fatherName}</Text>
+        <Text style={styles.detail}>Father’s Name: {data.fatherName}</Text>
         <Text style={styles.detail}>Address: {data.address}</Text>
         <Text style={styles.detail}>Blood Group: {data.bloodGroup}</Text>
         <Text style={styles.detail}>Education: {data.education}</Text>
@@ -118,9 +117,9 @@ export default function Home() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: name === 'age' ? parseInt(value) || 0 : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'age' ? parseInt(value) || 0 : value,
     }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
@@ -129,7 +128,7 @@ export default function Home() {
     const newErrors: { [key: string]: string } = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (formData.age <= 0 || isNaN(formData.age)) newErrors.age = 'Age must be a positive number';
-    if (!formData.fatherName.trim()) newErrors.fatherName = "Father's name is required";
+    if (!formData.fatherName.trim()) newErrors.fatherName = 'Father’s name is required';
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     if (!formData.bloodGroup) newErrors.bloodGroup = 'Blood group is required';
     if (!formData.education.trim()) newErrors.education = 'Education is required';
@@ -139,20 +138,19 @@ export default function Home() {
 
   const saveToGoogleSheets = async (data: FormData) => {
     try {
-      const response = await fetch(GOOGLE_SHEETS_URL, {
+      await fetch(GOOGLE_SHEETS_URL, {
         method: 'POST',
-        mode: 'no-cors', // For simple CORS bypass in dev; use proper CORS in production
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
-      // Note: no-cors means we can't read response, but assume success if no error
       console.log('Data saved to Google Sheets');
       return true;
-    } catch (error) {
-      console.error('Error saving to Google Sheets:', error);
-      throw error;
+    } catch (error: any) {
+      console.error('Error saving to Google Sheets:', error.message);
+      throw new Error(`Failed to save to Google Sheets: ${error.message}`);
     }
   };
 
@@ -165,8 +163,8 @@ export default function Home() {
         await saveToGoogleSheets(formData);
         console.log('Form Data Submitted:', formData);
         setSubmitted(true);
-      } catch (error) {
-        setSubmitError('Failed to save data. Please try again or check console.');
+      } catch (error: any) {
+        setSubmitError(error.message || 'Failed to save data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -182,7 +180,7 @@ export default function Home() {
           </h1>
           <p className="text-gray-600">Join our vibrant club! Fill the form below to get started.</p>
         </div>
-        
+
         {!submitted ? (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -215,14 +213,14 @@ export default function Home() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Father's Name *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Father’s Name *</label>
               <input
                 type="text"
                 name="fatherName"
                 value={formData.fatherName}
                 onChange={handleChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
-                placeholder="Enter father's full name"
+                placeholder="Enter father’s full name"
                 required
               />
               {errors.fatherName && <p className="text-red-500 text-xs mt-1 animate-pulse">{errors.fatherName}</p>}
@@ -272,7 +270,7 @@ export default function Home() {
                 value={formData.education}
                 onChange={handleChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
-                placeholder="e.g., Bachelor's Degree"
+                placeholder="e.g., Bachelor’s Degree"
                 required
               />
               {errors.education && <p className="text-red-500 text-xs mt-1 animate-pulse">{errors.education}</p>}
@@ -291,16 +289,23 @@ export default function Home() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   <span>Saving...</span>
                 </>
               ) : (
-                <>
-                  <span>Submit (Mock – No Payment Yet)</span>
-                </>
+                <span>Submit (Mock – No Payment Yet)</span>
               )}
             </button>
           </form>
@@ -336,8 +341,14 @@ export default function Home() {
 
       <style jsx global>{`
         @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
