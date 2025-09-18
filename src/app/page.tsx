@@ -53,7 +53,7 @@ const MembershipCard = ({ data }: { data: FormData }) => (
         <Text style={styles.title}>Membership Card</Text>
         <Text style={styles.detail}>Name: {data.name}</Text>
         <Text style={styles.detail}>Age: {data.age}</Text>
-        <Text style={styles.detail}>Father's Name: {data.fatherName}</Text>
+        <Text style={styles.detail}>Father Name: {data.fatherName}</Text>
         <Text style={styles.detail}>Address: {data.address}</Text>
         <Text style={styles.detail}>Blood Group: {data.bloodGroup}</Text>
         <Text style={styles.detail}>Education: {data.education}</Text>
@@ -85,7 +85,7 @@ export default function Home() {
     const newErrors: { [key: string]: string } = {};
     if (!formData.name) newErrors.name = 'Name is required';
     if (formData.age <= 0) newErrors.age = 'Age must be positive';
-    if (!formData.fatherName) newErrors.fatherName = "Father's name is required";
+    if (!formData.fatherName) newErrors.fatherName = "Father name is required";
     if (!formData.address) newErrors.address = 'Address is required';
     if (!formData.bloodGroup) newErrors.bloodGroup = 'Blood group is required';
     if (!formData.education) newErrors.education = 'Education is required';
